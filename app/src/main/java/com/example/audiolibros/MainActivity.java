@@ -1,5 +1,6 @@
 package com.example.audiolibros;
 
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -12,6 +13,9 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import com.example.audiolibros.fragments.DetalleFragment;
+import com.example.audiolibros.fragments.SelectorFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,7 +38,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        if((findViewById(R.id.contenedor_pequeno) != null) && (getFragmentManager().findFragmentById(R.id.contenedor_pequeno) == null)){
+            SelectorFragment primerFragment = new SelectorFragment();
+            getFragmentManager().beginTransaction().add(R.id.contenedor_pequeno, primerFragment).commit();
+        }
+
         Aplicacion app = (Aplicacion) getApplication();
+
+        /*
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setAdapter(app.getAdaptador());
         //Arrastre Horizontal layoutManager = new GridLayoutManager(this, 2, LinearLayoutManager.HORIZONTAL, false);
@@ -47,6 +58,9 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this,"Sleccionado elemeto: "+recyclerView.getChildAdapterPosition(v),Toast.LENGTH_SHORT).show();
             }
         });
+        */
+
+
     }
 
     @Override
@@ -69,5 +83,21 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void mostrarDetalle(int id) {
+        DetalleFragment detalleFragment = (DetalleFragment) getFragmentManager().findFragmentById(R.id.detalle_fragment);
+        if (detalleFragment != null) {
+            detalleFragment.ponInfoLibro(id);
+        } else {
+            DetalleFragment nuevoFragment = new DetalleFragment();
+            Bundle args = new Bundle();
+            args.putInt(DetalleFragment.ARG_ID_LIBRO, id);
+            nuevoFragment.setArguments(args);
+            FragmentTransaction transaccion = getFragmentManager().beginTransaction();
+            transaccion.replace(R.id.contenedor_pequeno, nuevoFragment);
+            transaccion.addToBackStack(null);
+            transaccion.commit();
+        }
     }
 }
