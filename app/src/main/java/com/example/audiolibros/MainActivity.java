@@ -1,9 +1,12 @@
 package com.example.audiolibros;
 
 import android.app.FragmentTransaction;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
 
+    private AdaptadorLibrosFiltro adaptador;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,8 +38,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                irUltimoVisitado();
             }
         });
 
@@ -44,6 +48,45 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Aplicacion app = (Aplicacion) getApplication();
+
+        adaptador = ((Aplicacion) getApplicationContext()).getAdaptador();
+
+        //Pestañas
+        TabLayout tabs = (TabLayout) findViewById(R.id.tabs);
+        tabs.addTab(tabs.newTab().setText("Todos"));
+        tabs.addTab(tabs.newTab().setText("Nuevos"));
+        tabs.addTab(tabs.newTab().setText("Leidos"));
+
+        tabs.setTabMode(TabLayout.MODE_SCROLLABLE);
+        tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                switch (tab.getPosition()) {
+                    case 0: //Todos
+                        adaptador.setNovedad(false);
+                        adaptador.setLeido(false);
+                        break;
+                    case 1: //Nuevos
+                        adaptador.setNovedad(true);
+                        adaptador.setLeido(false);
+                        break;
+                    case 2: //Leidos
+                        adaptador.setNovedad(false);
+                        adaptador.setLeido(true);
+                        break;
+                }
+                adaptador.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
 
         /*
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
@@ -65,23 +108,29 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.menu_preferencias) {
+            Toast.makeText(this, "Preferencias", Toast.LENGTH_LONG).show();
+            return true;
+        } else if (id == R.id.menu_ultimo) {
+            irUltimoVisitado();
+            return true;
+        } else if (id == R.id.menu_buscar) {
             return true;
         }
-
+        else if (id == R.id.menu_acerca) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Mensaje de Acerca De");
+            builder.setPositiveButton(android.R.string.ok, null);
+            builder.create().show();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -99,5 +148,20 @@ public class MainActivity extends AppCompatActivity {
             transaccion.addToBackStack(null);
             transaccion.commit();
         }
+        SharedPreferences pref = getSharedPreferences("com.example.audiolibros_internal", MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putInt("ultimo", id);
+        editor.commit();
     }
+
+    public void irUltimoVisitado() {
+        SharedPreferences pref = getSharedPreferences("com.example.audiolibros_internal", MODE_PRIVATE);
+        int id = pref.getInt("ultimo", -1);
+        if (id >= 0) {
+            mostrarDetalle(id);
+        } else {
+            Toast.makeText(this,"Sin última vista",Toast.LENGTH_LONG).show();
+        }
+    }
+
 }

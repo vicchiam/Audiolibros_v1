@@ -21,6 +21,7 @@ public class AdaptadorLibros extends RecyclerView.Adapter<AdaptadorLibros.ViewHo
     private Context contexto;
 
     private View.OnClickListener onClickListener;
+    private View.OnLongClickListener onLongClickListener;
 
     public AdaptadorLibros(Context contexto, List<Libro> listaLibros) {
         inflador = (LayoutInflater) contexto .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -37,6 +38,7 @@ public class AdaptadorLibros extends RecyclerView.Adapter<AdaptadorLibros.ViewHo
         // Inflamos la vista desde el xml
         View v = inflador.inflate(R.layout.elemento_selector, null);
         v.setOnClickListener(onClickListener);
+        v.setOnLongClickListener(onLongClickListener);
         return new ViewHolder(v);
     }
 
@@ -52,6 +54,10 @@ public class AdaptadorLibros extends RecyclerView.Adapter<AdaptadorLibros.ViewHo
     @Override
     public int getItemCount() {
         return listaLibros.size();
+    }
+
+    public void setOnItemLongClickListener(View.OnLongClickListener onLongClickListener) {
+        this.onLongClickListener = onLongClickListener;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
