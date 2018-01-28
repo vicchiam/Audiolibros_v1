@@ -100,7 +100,31 @@ public class SelectorFragment extends Fragment {
             }
         });
 
+        setHasOptionsMenu(true);
         return vista;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_selector, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.menu_ultimo) {
+            ((MainActivity) actividad).irUltimoVisitado();
+            return true;
+        } else if (id == R.id.menu_buscar) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onResume(){
+        ((MainActivity) getActivity()).mostrarElementos(true);
+        super.onResume();
     }
 
 }

@@ -57,6 +57,7 @@ public class AdaptadorLibrosFiltro extends AdaptadorLibros {
         }
     }
     public Libro getItem(int posicion) { return listaSinFiltro.get(indiceFiltro.get(posicion)); }
+
     public long getItemId(int posicion) {
         return indiceFiltro.get(posicion);
     }

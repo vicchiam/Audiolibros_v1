@@ -13,8 +13,10 @@ import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.TextView;
 
+import com.android.volley.toolbox.NetworkImageView;
 import com.example.audiolibros.Aplicacion;
 import com.example.audiolibros.Libro;
+import com.example.audiolibros.MainActivity;
 import com.example.audiolibros.R;
 
 import java.io.IOException;
@@ -40,32 +42,6 @@ public class DetalleFragment extends Fragment implements View.OnTouchListener, M
             ponInfoLibro(0, vista);
         }
         return vista;
-    }
-
-    private void ponInfoLibro(int id, View vista) {
-        Libro libro = ((Aplicacion) getActivity().getApplication()).getListaLibros().get(id);
-        ((TextView) vista.findViewById(R.id.titulo)).setText(libro.titulo);
-        ((TextView) vista.findViewById(R.id.autor)).setText(libro.autor);
-        ((ImageView) vista.findViewById(R.id.portada))
-                .setImageResource(libro.recursoImagen);
-        vista.setOnTouchListener(this);
-        if (mediaPlayer != null){
-            mediaPlayer.release();
-        }
-        mediaPlayer = new MediaPlayer();
-        mediaPlayer.setOnPreparedListener(this);
-        mediaController = new MediaController(getActivity());
-        Uri audio = Uri.parse(libro.urlAudio);
-        try {
-            mediaPlayer.setDataSource(getActivity(), audio);
-            mediaPlayer.prepareAsync();
-        } catch (IOException e) {
-            Log.e("Audiolibros", "ERROR: No se puede reproducir "+audio,e);
-        }
-    }
-
-    public void ponInfoLibro(int id) {
-        ponInfoLibro(id, getView());
     }
 
     @Override
@@ -153,6 +129,42 @@ public class DetalleFragment extends Fragment implements View.OnTouchListener, M
     @Override
     public int getAudioSessionId() {
         return 0;
+    }
+
+    @Override public void onResume(){
+        DetalleFragment detalleFragment = (DetalleFragment) getFragmentManager().findFragmentById(R.id.detalle_fragment);
+        if (detalleFragment == null ) {
+            ((MainActivity) getActivity()).mostrarElementos(false);
+        }
+        super.onResume();
+    }
+
+    private void ponInfoLibro(int id, View vista) {
+        Libro libro = ((Aplicacion) getActivity().getApplication()).getListaLibros().get(id);
+        ((TextView) vista.findViewById(R.id.titulo)).setText(libro.titulo);
+        ((TextView) vista.findViewById(R.id.autor)).setText(libro.autor);
+
+        Aplicacion aplicacion = (Aplicacion) getActivity().getApplication();
+        ((NetworkImageView) vista.findViewById(R.id.portada)).setImageUrl( libro.urlImagen,aplicacion.getLectorImagenes());
+
+        vista.setOnTouchListener(this);
+        if (mediaPlayer != null){
+            mediaPlayer.release();
+        }
+        mediaPlayer = new MediaPlayer();
+        mediaPlayer.setOnPreparedListener(this);
+        mediaController = new MediaController(getActivity());
+        Uri audio = Uri.parse(libro.urlAudio);
+        try {
+            mediaPlayer.setDataSource(getActivity(), audio);
+            mediaPlayer.prepareAsync();
+        } catch (IOException e) {
+            Log.e("Audiolibros", "ERROR: No se puede reproducir "+audio,e);
+        }
+    }
+
+    public void ponInfoLibro(int id) {
+        ponInfoLibro(id, getView());
     }
 
 }
