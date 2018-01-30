@@ -25,6 +25,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.audiolibros.fragments.DetalleFragment;
+import com.example.audiolibros.fragments.PreferenciasFragment;
 import com.example.audiolibros.fragments.SelectorFragment;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
@@ -73,10 +74,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
+        /*
         if((findViewById(R.id.contenedor_pequeno) != null) && (getFragmentManager().findFragmentById(R.id.contenedor_pequeno) == null)){
             SelectorFragment primerFragment = new SelectorFragment();
             getFragmentManager().beginTransaction().add(R.id.contenedor_pequeno, primerFragment).commit();
         }
+        */
+
+        int idContenedor = (findViewById(R.id.contenedor_pequeno) != null) ? R.id.contenedor_pequeno : R.id.contenedor_izquierdo;
+        SelectorFragment primerFragment = new SelectorFragment();
+        getFragmentManager().beginTransaction().add(idContenedor, primerFragment).commit();
 
         Aplicacion app = (Aplicacion) getApplication();
 
@@ -147,7 +154,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.menu_preferencias) {
-            Intent i = new Intent(this, PreferenciasActivity.class); startActivity(i);
+            //Intent i = new Intent(this, PreferenciasActivity.class);
+            // startActivity(i);
+            abrePreferencias();
             return true;
         }
         else if (id == R.id.menu_acerca) {
@@ -181,8 +190,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             adaptador.notifyDataSetChanged();
         }
         else if (id == R.id.nav_preferencias){
+            /*
             Intent i = new Intent(this, PreferenciasActivity.class);
             startActivity(i);
+            */
+            abrePreferencias();
         }
         DrawerLayout drawer = (DrawerLayout) findViewById( R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -240,6 +252,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         else {
             tabs.setVisibility(View.GONE);
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        }
+    }
+
+    public void abrePreferencias() {
+        //int idContenedor = (findViewById(R.id.contenedor_pequeno) != null) ? R.id.contenedor_pequeno : R.id.contenedor_izquierdo;
+        if(findViewById(R.id.contenedor_pequeno)!=null){
+            Intent i = new Intent(this, PreferenciasActivity.class);
+            startActivity(i);
+        }
+        else {
+            int idContenedor = R.id.contenedor_izquierdo;
+            PreferenciasFragment prefFragment = new PreferenciasFragment();
+            getFragmentManager().beginTransaction()
+                    .replace(idContenedor, prefFragment)
+                    .addToBackStack(null)
+                    .commit();
         }
     }
 

@@ -1,5 +1,7 @@
 package com.example.audiolibros.fragments;
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
@@ -8,6 +10,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -34,7 +37,7 @@ import java.util.List;
  * Created by vicch on 26/01/2018.
  */
 
-public class SelectorFragment extends Fragment implements Animation.AnimationListener{
+public class SelectorFragment extends Fragment implements Animation.AnimationListener, Animator.AnimatorListener{
 
     private Activity actividad;
     private RecyclerView recyclerView;
@@ -72,6 +75,10 @@ public class SelectorFragment extends Fragment implements Animation.AnimationLis
                     public void onClick(DialogInterface dialogInterface, int opcion) {
                         switch (opcion) {
                             case 0:
+                                Animator anim = AnimatorInflater.loadAnimator(actividad,R.animator.shake);
+                                anim.addListener(SelectorFragment.this);
+                                anim.setTarget(v);
+                                anim.start();
                                 Libro libro = listaLibros.get(id);
                                 Intent i = new Intent(Intent.ACTION_SEND);
                                 i.setType("text/plain");
@@ -94,7 +101,8 @@ public class SelectorFragment extends Fragment implements Animation.AnimationLis
                             case 2:
                                 int posicion = recyclerView.getChildLayoutPosition(v);
                                 adaptador.insertar((Libro) adaptador.getItem(posicion));
-                                adaptador.notifyDataSetChanged();
+                                //adaptador.notifyDataSetChanged();
+                                adaptador.notifyItemInserted(0);
                                 Snackbar.make(v,"Libro insertado", Snackbar.LENGTH_INDEFINITE).setAction("OK", new View.OnClickListener() {
                                     @Override public void onClick(View view) { }
                                 }).show();
@@ -106,6 +114,11 @@ public class SelectorFragment extends Fragment implements Animation.AnimationLis
                 return true;
             }
         });
+
+        DefaultItemAnimator animator = new DefaultItemAnimator();
+        animator.setAddDuration(500);
+        animator.setMoveDuration(500);
+        recyclerView.setItemAnimator(animator);
 
         setHasOptionsMenu(true);
         return vista;
@@ -171,6 +184,26 @@ public class SelectorFragment extends Fragment implements Animation.AnimationLis
 
     @Override
     public void onAnimationRepeat(Animation animation) {
+
+    }
+
+    @Override
+    public void onAnimationStart(Animator animator) {
+
+    }
+
+    @Override
+    public void onAnimationEnd(Animator animator) {
+        adaptador.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onAnimationCancel(Animator animator) {
+
+    }
+
+    @Override
+    public void onAnimationRepeat(Animator animator) {
 
     }
 }
