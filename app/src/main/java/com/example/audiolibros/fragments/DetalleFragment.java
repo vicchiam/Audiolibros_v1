@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +21,8 @@ import com.example.audiolibros.Aplicacion;
 import com.example.audiolibros.Libro;
 import com.example.audiolibros.MainActivity;
 import com.example.audiolibros.R;
+import com.example.audiolibros.zoomSeekBar.OnValListener;
+import com.example.audiolibros.zoomSeekBar.ZoomSeekBar;
 
 import java.io.IOException;
 
@@ -27,11 +30,14 @@ import java.io.IOException;
  * Created by vicch on 26/01/2018.
  */
 
-public class DetalleFragment extends Fragment implements View.OnTouchListener, MediaPlayer.OnPreparedListener, MediaController.MediaPlayerControl {
+public class DetalleFragment extends Fragment implements View.OnTouchListener, MediaPlayer.OnPreparedListener, MediaController.MediaPlayerControl, OnValListener {
 
     public static String ARG_ID_LIBRO = "id_libro";
     MediaPlayer mediaPlayer;
     MediaController mediaController;
+
+    ZoomSeekBar zoomSeekBar;
+    private Handler manejador;
 
     @Override
     public View onCreateView(LayoutInflater inflador, ViewGroup contenedor, Bundle savedInstanceState) {
@@ -43,6 +49,11 @@ public class DetalleFragment extends Fragment implements View.OnTouchListener, M
         } else {
             ponInfoLibro(0, vista);
         }
+
+        zoomSeekBar = (ZoomSeekBar) vista.findViewById(R.id.zoomSeekBar);
+        zoomSeekBar.setOnValListener(this);
+        manejador=new Handler();
+
         return vista;
     }
 
@@ -52,13 +63,28 @@ public class DetalleFragment extends Fragment implements View.OnTouchListener, M
 
         SharedPreferences preferencias = PreferenceManager.getDefaultSharedPreferences(getActivity());
         if (preferencias.getBoolean("pref_autoreproducir", true)) {
-            mediaPlayer.start();
+            this.start();
         }
 
         mediaController.setMediaPlayer(this);
         mediaController.setAnchorView(getView().findViewById(R.id.fragment_detalle));
         mediaController.setEnabled(true);
         mediaController.show();
+
+
+        int duration=mediaPlayer.getDuration()/1000; //En segundos
+
+
+        Log.d("Duration", duration+"");
+
+        zoomSeekBar.setValMin(0);
+        zoomSeekBar.setValMax(duration);
+        zoomSeekBar.setEscalaMin(0);
+        zoomSeekBar.setEscalaMax(duration);
+        zoomSeekBar.setEscalaIni(0);
+        zoomSeekBar.setEscalaRaya(duration/20);
+        zoomSeekBar.setEscalaRayaLarga(5);
+
     }
 
     @Override
@@ -131,6 +157,7 @@ public class DetalleFragment extends Fragment implements View.OnTouchListener, M
     @Override
     public void start() {
         mediaPlayer.start();
+        updateProgress();
     }
 
     @Override
@@ -174,4 +201,29 @@ public class DetalleFragment extends Fragment implements View.OnTouchListener, M
         ponInfoLibro(id, getView());
     }
 
+    @Override
+    public void onChangeVal(int newVal) {
+        this.seekTo((newVal*1000));
+    }
+
+    public void updateProgress(){
+        if(manejador!=null){
+            manejador.postDelayed(updateProgress,1000);
+        }
+    }
+
+    private Runnable updateProgress = new Runnable(){
+        public void run(){
+            int pos=mediaPlayer.getCurrentPosition();
+            Log.d("POS", pos+" - "+zoomSeekBar.getValMin()+"-"+zoomSeekBar.getValMax());
+            zoomSeekBar.setValNoEvent((pos/1000));
+            manejador.postDelayed(this,1000);
+        }
+    };
+
+    @Override
+    public void onPause() {
+        manejador.removeCallbacks(updateProgress);
+        super.onPause();
+    }
 }

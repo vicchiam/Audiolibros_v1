@@ -46,6 +46,13 @@
             android:layout_centerHorizontal="true"
             android:scaleType="fitCenter" />
 
+        <com.example.audiolibros.zoomSeekBar.ZoomSeekBar
+            android:id="@+id/zoomSeekBar"
+            android:layout_width="match_parent"
+            android:layout_height="130dp"
+            android:padding="15dp"
+            android:layout_below="@id/portada"/>
+
     </RelativeLayout>
 
 </android.support.v4.widget.NestedScrollView>
