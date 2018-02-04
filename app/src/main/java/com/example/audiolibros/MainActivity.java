@@ -1,14 +1,18 @@
 package com.example.audiolibros;
 
 import android.app.FragmentTransaction;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -19,9 +23,11 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.example.audiolibros.fragments.DetalleFragment;
@@ -39,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TabLayout tabs;
     private DrawerLayout drawer;
     private ActionBarDrawerToggle toggle;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,6 +150,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
         */
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        Aplicacion app = (Aplicacion) getApplication();
+        app.stop();
+        super.onResume();
     }
 
     @Override
@@ -226,9 +243,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             transaccion.addToBackStack(null);
             transaccion.commit();
         }
+
+        Libro libro = ((Aplicacion) getApplication()).getListaLibros().get(id);
+
         SharedPreferences pref = getSharedPreferences("com.example.audiolibros_internal", MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.putInt("ultimo", id);
+        editor.putString("titulo", libro.titulo);
+        editor.putString("autor", libro.autor);
+
         editor.commit();
     }
 
@@ -270,5 +293,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .commit();
         }
     }
+
+
 
 }
